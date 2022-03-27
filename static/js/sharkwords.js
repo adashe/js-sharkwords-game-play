@@ -14,11 +14,12 @@ const WORDS = [
   'chocolate',
 ];
 
+const word = 'hello';
 let numWrong = 0;
+let correctGuesses = 0;
 
 // Loop over the chars in `word` and create divs.
 //
-
 const createDivsForChars = (word) => {
   const wordContainer = document.querySelector('#word-container');
   for (const letter of word) {
@@ -49,8 +50,19 @@ const isLetterInWord = (letter) => document.querySelector(`div.${letter}`) !== n
 
 // Called when `letter` is in word. Update contents of divs with `letter`.
 //
-const handleCorrectGuess = (letter) => {
-  // Replace this with your code
+const handleCorrectGuess = (letter, word) => {
+  const containers = document.querySelectorAll(`.${letter}`);
+  
+  for (const container of containers) {
+    container.innerHTML = letter;
+    correctGuesses += 1;
+  }
+
+  if (correctGuesses === word.length) {
+    document.querySelector('#win').style.display = 'block';
+    
+  }
+  
 };
 
 //
@@ -62,7 +74,18 @@ const handleCorrectGuess = (letter) => {
 
 const handleWrongGuess = () => {
   numWrong += 1;
-  // Replace this with your code
+  if (numWrong === 5) {
+    const containers = document.querySelectorAll('button');
+    for (const container of containers) {
+      disableLetterButton(container);
+    }
+    const linkElement = document.querySelector('a#play-again');
+    linkElement.style.display='';
+  }
+  else {
+    const imageElement = document.querySelector('img');
+    imageElement.setAttribute('src', `/static/images/guess${numWrong}.png`);
+  }
 };
 
 //  Reset game state. Called before restarting the game.
@@ -74,16 +97,32 @@ const resetGame = () => {
 //
 (function startGame() {
   // For now, we'll hardcode the word that the user has to guess.
-  const word = 'hello';
+
 
   createDivsForChars(word);
   generateLetterButtons();
 
   for (const button of document.querySelectorAll('button')) {
     // add an event handler to handle clicking on a letter button
-    // YOUR CODE HERE
+    button.addEventListener('click', (evt) => {
+      const letter = evt.target.innerHTML;
+      disableLetterButton(evt.target);
+      
+      if (isLetterInWord(letter)) {
+        handleCorrectGuess(letter, word);
+      }
+      else {
+        handleWrongGuess();
+      }
+
+    });
   }
 
   // add an event handler to handle clicking on the Play Again button
-  // YOUR CODE HERE
+  const playAgain = document.querySelector('#play-again');
+  playAgain.addEventListener('click', resetGame);
+
+  // add an event handler to handle clicking on the You Won! button
+  const playAfterWon = document.querySelector('#win');
+  playAfterWon.addEventListener('click', resetGame);
 })();
